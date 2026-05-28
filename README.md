@@ -1,94 +1,101 @@
-# Rule-Based Medical Chatbot
-**Developer:** Mina Ayman
-**Project:** DecodeLabs Industrial Training Kit — Artificial Intelligence, Project 1
-**Batch:** 2026
+# 🤖 Rule-Based Medical Chatbot
+
+> A rule-based AI medical assistant developed in Python that provides symptom-based guidance, medicine suggestions, emergency advice, and typo tolerance through fuzzy matching.
+
+**DecodeLabs Internship — Batch 2026 | Project 1: Artificial Intelligence**  
+**Author:** Mina Ayman Kamal
 
 ---
 
-## Project Overview
+## 📌 Overview
 
-A rule-based medical chatbot built in Python that provides symptom guidance and basic medicine suggestions through predefined logic. This project demonstrates mastery of control flow, dictionary-based decision making, and continuous input loop architecture — the foundational skills required for building deterministic AI systems.
+This project is the first milestone of the DecodeLabs AI Engineering internship track. It demonstrates foundational AI concepts through the construction of a deterministic, rule-based chatbot — a "white box" system where every decision is fully traceable and explainable.
+
+Rather than relying on machine learning, this chatbot operates through structured control flow, dictionary-based intent matching, and fuzzy string correction to simulate intelligent medical assistance.
 
 ---
 
-## Project 1 Requirements Checklist
+## ✨ Features
 
-| Requirement | Status | Implementation Detail |
+- 🩺 **Symptom Recognition** — Detects 9 medical conditions including headache, fever, stress, allergies, chest pain, and more
+- 💊 **Medicine Suggestions** — Returns appropriate over-the-counter medicine recommendations per symptom
+- 🚨 **Emergency Detection** — Flags high-severity conditions (e.g. chest pain) and advises immediate medical attention
+- 🔤 **Fuzzy Matching** — Handles typos and near-match inputs using Python's `difflib.get_close_matches`
+- 💬 **General Conversation** — Responds to greetings, identity questions, medical philosophy, and medicine information queries
+- 🔁 **Continuous Loop** — Runs indefinitely until the user types `exit`
+- 🧹 **Input Sanitization** — Normalizes all input via `.lower().strip()` before processing
+
+---
+
+## 🗂️ Project Structure
+
+```
+rule_based_medical_chatbot/
+│
+├── rule_based_medical_chatbot.py   # Main chatbot script
+└── README.md                       # Project documentation
+```
+
+---
+
+## ⚙️ How It Works
+
+The chatbot follows the **IPO Model** (Input → Process → Output):
+
+1. **Input & Sanitization** — Raw user input is lowercased and stripped of whitespace
+2. **Fuzzy Correction** — If the input doesn't match any key exactly, `get_close_matches` attempts to find the closest known intent
+3. **Direct Response Matching** — Checks the `responses` dictionary for greetings, identity, and general queries (O(1) lookup)
+4. **Symptom Matching** — Iterates through the `symptoms` database, matching keywords and fuzzy corrections
+5. **Severity Routing** — High-severity symptoms trigger emergency advice; others return medicine and general guidance
+6. **Fallback** — Unrecognized inputs return a default `"I don't understand"` response
+
+---
+
+## 🧠 Knowledge Base
+
+### Response Categories (`responses` dict)
+| Category | Examples |
+|---|---|
+| Greetings | hello, hi, hey, good morning |
+| Identity | who are you, what is your purpose |
+| Medicine Info | what is paracetamol, what is ibuprofen |
+| Medical Philosophy | what is health, what is pain |
+| Safety & Emergency | emergency, is this dangerous |
+
+### Symptom Database (`symptoms` dict)
+| Symptom | Severity | Suggested Medicine |
 |---|---|---|
-| Continuous input loop | Complete | `while True` loop runs until the user types `exit` |
-| Input sanitization | Complete | `.lower().strip()` normalizes all user input |
-| Knowledge base with 5+ intents | Complete | 50+ intents in `responses` dict + 9 symptom categories |
-| Fallback response for unknowns | Complete | `responses.get(user_input, "I don't understand")` |
-| Clean exit command | Complete | `if user_input == "exit": break` |
-| If-else logic for responses | Complete | Layered matching: direct response → symptom → fallback |
+| Headache | Mild | Paracetamol, Ibuprofen |
+| Fever | Mild | Paracetamol |
+| Stress / Anxiety | Mild | Ashwagandha, Magnesium |
+| Cold | Mild | Cold relief medication |
+| Allergies | Mild | Cetirizine |
+| Sleep Problems | Mild | Melatonin |
+| Stomach Pain | Moderate | Antacids |
+| Dehydration | Moderate | Electrolyte solution |
+| Chest Pain | **High** | ⚠️ Seek emergency care |
 
 ---
 
-## Architecture
+## 🚀 Getting Started
 
-The chatbot follows the IPO (Input, Process, Output) model taught in the training kit:
+### Prerequisites
+- Python 3.x
+- No external libraries required (`difflib` is part of the Python standard library)
 
-**Input Phase** — Raw user text is collected and sanitized using `.lower().strip()`, ensuring case and whitespace variations are handled before any matching occurs.
-
-**Process Phase** — The system applies a three-tier matching strategy:
-
-1. Direct dictionary lookup via `.get()` on the `responses` dict (O(1) complexity, no if-elif ladder).
-2. Fuzzy correction using `difflib.get_close_matches` before dictionary lookup, tolerating minor typos.
-3. Symptom keyword matching across the `symptoms` database, also with fuzzy correction at cutoff 0.5.
-
-**Output Phase** — The system returns either a direct response, a structured symptom response (medicine + advice), or a fallback message. High-severity symptoms (e.g., chest pain) bypass medicine suggestions and route directly to emergency advice.
-
----
-
-## Knowledge Base
-
-**Response Dictionary** — Covers greetings, identity queries, medical philosophy, medicine information, safety prompts, and exit phrases (50+ keys).
-
-**Symptoms Database** — 9 symptom categories with structured data per entry:
-
-| Symptom | Suggested Medicine | Severity |
-|---|---|---|
-| Headache | Paracetamol, Ibuprofen | Mild |
-| Fever | Paracetamol | Mild |
-| Stress | Ashwagandha, Magnesium | Mild |
-| Cold | Cold relief medication | Mild |
-| Stomach Pain | Antacids | Moderate |
-| Allergies | Cetirizine | Mild |
-| Sleep Problems | Melatonin | Mild |
-| Dehydration | Electrolyte solution | Moderate |
-| Chest Pain | None — emergency referral | High |
-
----
-
-## Technical Design Decisions
-
-**Dictionary over if-elif ladder** — Response lookup uses Python's `.get()` method, achieving O(1) constant-time lookup regardless of knowledge base size. This avoids the O(n) linear complexity and high technical debt associated with chained if-elif structures.
-
-**Fuzzy matching** — `difflib.get_close_matches` is applied at two points in the pipeline: once on the full response dictionary (cutoff 0.6) and once per symptom keyword list (cutoff 0.5). This makes the bot tolerant of minor spelling errors without requiring machine learning.
-
-**Severity routing** — The symptom processor checks severity before constructing any response. High-severity conditions skip medicine output entirely and return only emergency guidance, preventing inappropriate self-medication advice.
-
-**White-box transparency** — Every response is fully traceable: input → sanitization → lookup → output. There is no probabilistic behavior. This aligns with the rule-based "white box" model described in the architecture briefing.
-
----
-
-## How to Run
-
-**Requirements:** Python 3.x (no external libraries required — `difflib` is part of the standard library)
+### Run the Chatbot
 
 ```bash
 python rule_based_medical_chatbot.py
 ```
 
-Type any symptom, greeting, or medical question at the `You:` prompt. Type `exit` to terminate the session.
-
-**Example interaction:**
+### Example Interaction
 
 ```
 You: hello
 Hello. Tell me your symptoms clearly.
 
-You: i have a headache
+You: i have a headahce
 Suggested medicine: Paracetamol, Ibuprofen
 Rest and hydration may help.
 
@@ -101,6 +108,15 @@ Goodbye!
 
 ---
 
-## Disclaimer
+## 🔬 Technical Concepts Demonstrated
 
-This chatbot provides general informational guidance only. It does not perform clinical diagnosis and is not a substitute for professional medical advice. Users experiencing serious or persistent symptoms should consult a licensed healthcare provider.
+| Concept | Implementation |
+|---|---|
+| Control Flow | `while` loop, `if/elif`, `break` |
+| Data Structures | Python dictionaries (O(1) lookup) |
+| Input Sanitization | `.lower().strip()` |
+| Fuzzy Matching | `difflib.get_close_matches` |
+| Fallback Logic | `.get()` with default value |
+| Severity Routing | Conditional branching on `data["severity"]` |
+
+
